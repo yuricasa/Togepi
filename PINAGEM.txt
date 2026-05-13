@@ -1,0 +1,122 @@
+╔══════════════════════════════════════════════════════╗
+║           TOGEPI — PINAGEM DO PROTÓTIPO              ║
+║           ESP32 WROOM 38 pinos  •  3,3 V             ║
+╚══════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  DIAGRAMA DO ESP32 (visão de cima, USB embaixo)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+       LADO 1 (esq)         LADO 2 (dir)
+       ┌──────────────────────────────────┐
+  3V3 ─┤ 1                            1 ├─ GND
+   EN ─┤ 2                            2 ├─ 23  (livre)
+   36 ─┤ 3                            3 ├─ 22  (livre)
+   39 ─┤ 4                            4 ├─ TXD (USB debug)
+   34 ─┤ 5                            5 ├─ RXD (USB debug)
+   35 ─┤ 6                            6 ├─ 21  ← TM1637 CLK
+   32 ─┤ 7  ← LED 1 (downbeat)        7 ├─ GND
+   33 ─┤ 8  ← LED 2                   8 ├─ 19  ← TM1637 DIO
+   25 ─┤ 9  ← LED 3                   9 ├─ 18  ← Encoder A (CLK)
+   26 ─┤10  ← LED 4                  10 ├─  5  ← Encoder B (DT)
+   27 ─┤11  ← LED 5                  11 ├─ 17  ← Encoder Botão (SW)
+   14 ─┤12  ← LED 6                  12 ├─ 16  ← Buzzer
+   12 ─┤13  (livre)                  13 ├─  4  (livre)
+  GND ─┤14                           14 ├─  0  (BOOT — não tocar)
+   13 ─┤15  (livre)                  15 ├─  2  (LED azul — não tocar)
+                                     16 ├─ 15  (livre)
+                                     17 ├─ SD1 (flash — não tocar)
+                                     18 ├─ SD0 (flash — não tocar)
+                                     19 ├─ CLK (flash — não tocar)
+       └──────────────────────────────────┘
+                     [ USB ]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  DISPLAY TM1637  (4 dígitos, 7 segmentos)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Pino TM1637   →   ESP32
+  ─────────────────────────
+  VCC           →   3V3
+  GND           →   GND
+  CLK           →   GPIO 21  (Lado 2, pos 6)
+  DIO           →   GPIO 19  (Lado 2, pos 8)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ENCODER ROTATIVO (com botão)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Pino Encoder  →   ESP32
+  ─────────────────────────
+  +  (VCC)      →   3V3
+  GND           →   GND
+  CLK  (A)      →   GPIO 18  (Lado 2, pos 9)
+  DT   (B)      →   GPIO  5  (Lado 2, pos 10)
+  SW   (botão)  →   GPIO 17  (Lado 2, pos 11)
+
+  Obs: pull-up interno ativado em software — não precisa
+       de resistor externo nos pinos CLK, DT, SW.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  BUZZER PASSIVO (piezo)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Pino Buzzer   →   ESP32
+  ─────────────────────────
+  +  (sinal)    →   GPIO 16  (Lado 2, pos 12)
+  -  (GND)      →   GND
+
+  Obs: buzzer passivo controlado por PWM (LEDC).
+       Buzzer ATIVO também funciona, mas o tom não varia.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  LEDs (6 unidades)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Circuito de cada LED:
+  GPIO → [Resistor 150 Ω] → [Anodo LED+] → [Catodo LED-] → GND
+
+  LED #   GPIO   Lado 1    Função
+  ──────────────────────────────────────────
+  LED 1   32     pos  7    Tempo 1 (downbeat — tom grave)
+  LED 2   33     pos  8    Tempo 2
+  LED 3   25     pos  9    Tempo 3
+  LED 4   26     pos 10    Tempo 4
+  LED 5   27     pos 11    Tempo 5
+  LED 6   14     pos 12    Tempo 6
+
+  Resistor: 150 Ω para Vf ≈ 2,0 V (vermelho/verde/amarelo)
+            100 Ω para Vf ≈ 3,0 V (azul/branco)
+  Corrente resultante ≈ 8–10 mA por LED (seguro para o GPIO).
+
+  Dica de montagem: todos os catodos (-) numa linha de GND
+  compartilhada no protoboard. Um resistor por LED no anodo.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ALIMENTAÇÃO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Todos os componentes em 3,3 V (saída regulada do ESP32).
+  Corrente total estimada:
+    LEDs (6 × 10 mA)  =  60 mA  (nunca todos ligados ao mesmo tempo)
+    TM1637             ≈   5 mA
+    Encoder            ≈   1 mA
+    Buzzer             ≈  20 mA
+    ESP32 (núcleo)     ≈  80 mA
+    ─────────────────────────────
+    Total pior caso    ≈ 166 mA   ← dentro do limite USB (500 mA)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  LÓGICA DE USO (referência rápida)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Ação no botão            Resultado
+  ─────────────────────────────────────────────────────
+  Press curto (parado)   → Inicia metrônomo
+  Press curto (rodando)  → Para metrônomo
+  Press longo            → Modo seleção de compasso
+  Qualquer press (modo   → Confirma compasso e sai
+    compasso)
+
+  Encoder (modo normal)  → Ajusta BPM  (40–300)
+  Encoder (modo compasso)→ Muda compasso (2/4 3/4 4/4 5/4 6/8)
