@@ -208,11 +208,13 @@ void updateDisplay() {
 }
 
 void onEncoderChange(int delta) {
+    delta = -delta;  // corrige direção
+
     if (appState == TIME_SIG) {
         int idx = (int)sigIdx + delta;
         if (idx < 0) idx = NUM_SIGS - 1;
         if (idx >= (int)NUM_SIGS) idx = 0;
-        sigIdx = (uint8_t)idx;
+        sigIdx        = (uint8_t)idx;
         previewBeat   = 0;
         previewLastMs = 0;
     } else {
